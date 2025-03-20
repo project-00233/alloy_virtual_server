@@ -6,35 +6,39 @@ importScripts(
   "https://www.gstatic.com/firebasejs/9.21.0/firebase-messaging-compat.js"
 );
 
-fetch("http://localhost:3000/api/firebase-config.json")
-  .then((res) => {
-    if (!res.ok) {
-      throw new Error("Failed to fetch Firebase configuration");
-    }
+require("dotenv").config({ path: "config.env" });
 
-    return res.json();
-  })
-  .then((firebaseConfig) => {
-    const { config } = firebaseConfig;
-    // Initialize Firebase in the service worker
-    firebase.initializeApp(config);
+const firbaseAPI = process.env.FIREBASE_API_KEY;
+const firebaseMSID = process.env.FIREBASE_MSG_SENDER_ID;
+const firebaseAID = process.env.FIREBASE_APP_ID;
+const firebaseVAP = process.env.FIREBASE_VAPID_KEY;
 
-    // Initialize messaging
-    const messaging = firebase.messaging();
+const firebase_config = {
+  config: {
+    apiKey: firbaseAPI,
+    authDomain: "womaye-4367e.firebaseapp.com",
+    projectId: "womaye-4367e",
+    storageBucket: "womaye-4367e.firebasestorage.app",
+    messagingSenderId: firebaseMSID,
+    appId: firebaseAID,
+  },
+  vapidKey: firebaseVAP,
+};
 
-    // Handle background notifications
-    messaging.onBackgroundMessage((payload) => {
-      // console.log("[Service Worker] Received background message:", payload);
+firebase.initializeApp(firebase_config?.config);
 
-      const notificationTitle = payload.notification.title || "Notification";
-      const notificationOptions = {
-        body: payload.notification.body || "You have a new message",
-        icon: payload.notification.icon || "/images/wL-img.png",
-      };
+// Initialize messaging
+const messaging = firebase.messaging();
 
-      self.registration.showNotification(
-        notificationTitle,
-        notificationOptions
-      );
-    });
-  });
+// Handle background notifications
+messaging.onBackgroundMessage((payload) => {
+  // console.log("[Service Worker] Received background message:", payload);
+
+  const notificationTitle = payload.notification.title || "Notification";
+  const notificationOptions = {
+    body: payload.notification.body || "You have a new message",
+    icon: payload.notification.icon || "/images/wL-img.png",
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});

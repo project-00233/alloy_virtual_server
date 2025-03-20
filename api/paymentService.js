@@ -1,10 +1,14 @@
 const https = require("https");
 const path = require("path");
 const fs = require("fs");
+require("dotenv").config({ path: "config.env" });
+
+const paystackSK = process.env.PAYSTACK_SECRET_KEY;
+const paystackPK = process.env.PAYSTACK_PUBLIC_KEY;
+
 const { womaye_url } = require("../tools/constants");
 
-const paystackConfigPath = path.resolve("./config/paystack-config.json");
-const paystackConfig = JSON.parse(fs.readFileSync(paystackConfigPath, "utf-8"));
+const paystackConfig = { secret_key: paystackSK, public_key: paystackPK };
 
 const intializePayment = (email, amount, callback) => {
   return new Promise((resolve, reject) => {
