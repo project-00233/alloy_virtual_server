@@ -1,0 +1,43 @@
+{
+  "name": "sv.api-womaye",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A service(sv) worker for womaye.com",
+  "main": "server.js",
+  "scripts": {
+    "start": "npm run start:dev",
+    "start:dev": "nodemon server.js",
+    "start:prod": "NODE_ENV=production nodemon server.json"
+  },
+  "author": "Kelvin Fumador",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.10",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "dotenv": "^7.0.0",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "firebase-admin": "^13.0.2",
+    "morgan": "^1.9.1",
+    "nodemailer": "^6.10.0",
+    "punycode": "^2.3.1",
+    "resend": "^4.1.2",
+    "supabase": "^2.1.1",
+    "twilio": "^5.4.5"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^6.1.1",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-react": "^7.12.4",
+    "prettier": "^1.17.0"
+  }
+}

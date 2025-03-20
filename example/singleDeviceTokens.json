@@ -1,0 +1,6 @@
+{
+  "token": "your_device_token",
+  "title": "Request sent",
+  "body": "You request has been sent successfully!",
+  "data": { "key": "value" }
+}

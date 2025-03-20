@@ -1,0 +1,11 @@
+{
+  "config": {
+    "apiKey": "AIzaSyCzy0tYs1MHK1yzTqyCUi-3YImoCHTbWMA",
+    "authDomain": "womaye-4367e.firebaseapp.com",
+    "projectId": "womaye-4367e",
+    "storageBucket": "womaye-4367e.firebasestorage.app",
+    "messagingSenderId": "416868796326",
+    "appId": "1:416868796326:web:13eb8f1e33b7dcc9d47167"
+  },
+  "vapidKey": "BLWouqJNkzCoJv8wlDt71optkHsZl2gJIyTzCdHCTAU96_30yGyjcHycbWh1Y5AUnAx30kiUR86xnF0dVWnESMQ"
+}
