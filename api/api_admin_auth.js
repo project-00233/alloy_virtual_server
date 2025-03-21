@@ -1,5 +1,4 @@
 const crypto = require("crypto");
-const { adminEmailList } = require("../tools/constants");
 const { sendPermitEmail } = require("./notificationService");
 
 let sessionTokens = {}; // Store session tokens as an object for fast lookups

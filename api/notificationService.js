@@ -76,11 +76,13 @@ const sendAdminEmail = async (eventData) => {
   try {
     const { subject, body } = eventData;
 
-    await resend.emails.send({
-      from: "Womaye Requests <requests@womaye.com>",
-      to: adminEmailList,
-      subject,
-      html: `<!doctype html><html>
+    const sendPromises = adminEmailList?.map(
+      async (email) =>
+        await resend.emails.send({
+          from: "Womaye Requests <requests@womaye.com>",
+          to: email,
+          subject,
+          html: `<!doctype html><html>
       <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
           <style>
@@ -149,7 +151,10 @@ const sendAdminEmail = async (eventData) => {
           </div>
         </body>
       </html>`,
-    });
+        })
+    );
+
+    await Promise.all(sendPromises);
   } catch (error) {
     log_notifyError(`"Failed to send email:", ${error}`);
   }
