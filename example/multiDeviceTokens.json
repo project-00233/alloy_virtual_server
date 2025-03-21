@@ -1,9 +1,0 @@
-[
-  {
-    "id": "100",
-    "device_tokens": "",
-    "title": "New Request Alert",
-    "body": "You have a new request from your guests",
-    "data": { "key": "value" }
-  }
-]

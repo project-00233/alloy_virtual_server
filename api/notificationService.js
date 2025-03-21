@@ -79,8 +79,6 @@ const sendAdminEmail = async (eventData) => {
   try {
     const { subject, body } = eventData;
 
-    console.log(body);
-
     await resend.emails.send({
       from: "Womaye Requests <requests@womaye.com>",
       to: adminEmailList,
@@ -269,8 +267,6 @@ const sendAdminSMS = async (message) => {
       to: process.env.ADMIN_CONTACT,
     });
 
-    console.log(response);
-
     console.log("SMS Sent Successfully:", response.sid);
   } catch (error) {
     console.error("Failed to send SMS:", error);
@@ -416,26 +412,5 @@ module.exports = {
 //     </style>
 //   </head>
 //   <body>
-//     <div class="main">
-//       <div class="intro">
-//         <div class="logoBox">
-//           <img class="wLogo" src="https://qxhmkrglbxxglrmxtffs.supabase.co/storage/v1/object/sign/womaye-images/wL-img.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJ3b21heWUtaW1hZ2VzL3dMLWltZy5wbmciLCJpYXQiOjE3NDI0NjA0OTYsImV4cCI6MTc3Mzk5NjQ5Nn0.6TLQ9NA9xb4kwNFbkKVm898VgmfNWEoxsCttK79ZI8s" />
-//           <p class="logoText">Womaye<p>
-//         </div>
-//         <p class="head1">Confirm your email</p>
-//       </div>
-
-//       <div class="content">
-//         <div class="cText">
-//           <p class="head2">Womaye HSP - Hyperlocal service provider</p>
-//           <p class="text">Womaye offers you with local services nearby that you could explore and make a reservation for.</p>
-//         </div>
-//         <a class="btn"  href="{{ .SiteURL }}/auth/confirm_email?confirmation_url={{ .ConfirmationURL }}">
-//           Open and Confirm
-//         </a>
-//       </div>
-
-//     </div>
-//     <!-- Example of invalid for email html/css, will be detected by Mailtrap: -->
 //   </body>
 // </html>
