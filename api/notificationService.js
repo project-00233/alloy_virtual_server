@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "config.env" });
+// require("dotenv").config({ path: "config.env" });
 const { Resend } = require("resend");
 const messaging = require("./firebaseAdmin");
 const { adminEmailList } = require("../tools/constants");
@@ -29,7 +29,6 @@ const sendNotificationToSingleDevice = async (
 
     const response = await messaging.send(message);
 
-    console.log("Successfully sent message");
     return response;
   } catch (err) {
     console.error("Error sending notification:", err);
@@ -65,8 +64,6 @@ const sendNotificationToMultiDevice = async (
     const invalidTokens = responses
       .map((response, i) => (response?.success ? null : tokens[i]))
       .filter((tk) => tk !== null);
-
-    console.log("Invalid tokens:", invalidTokens);
 
     return responses;
   } catch (err) {
@@ -253,7 +250,6 @@ const sendGSEmail = async (eventData) => {
 
     // Send email
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully:", info.response);
   } catch (error) {
     console.error("Failed to send email:", error);
   }
@@ -266,8 +262,6 @@ const sendAdminSMS = async (message) => {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: process.env.ADMIN_CONTACT,
     });
-
-    console.log("SMS Sent Successfully:", response.sid);
   } catch (error) {
     console.error("Failed to send SMS:", error);
   }

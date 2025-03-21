@@ -1,6 +1,6 @@
 const currency_subunit = 100;
 const womaye_url = "http://womaye.com";
-require("dotenv").config({ path: "config.env" });
+// require("dotenv").config({ path: "config.env" });
 
 const adminEmailList = process.env.ADMIN_EMAILS;
 

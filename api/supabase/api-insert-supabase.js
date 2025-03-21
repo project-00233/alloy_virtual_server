@@ -84,7 +84,6 @@ const insert_gsp = async (obj, request_for, callback) => {
   const { data, error } = await options.single();
 
   if (error) {
-    console.log(error);
     return callback(JSON.stringify(error), null);
   }
 

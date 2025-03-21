@@ -1,5 +1,5 @@
 const admin = require("firebase-admin");
-require("dotenv").config({ path: "config.env" });
+// require("dotenv").config({ path: "config.env" });
 
 const firbasePKID = process.env.FIREBASE_SERVER_PKID;
 const firebasePK = process.env.FIREBASE_SERVER_PK;

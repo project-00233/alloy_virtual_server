@@ -6,7 +6,7 @@ importScripts(
   "https://www.gstatic.com/firebasejs/9.21.0/firebase-messaging-compat.js"
 );
 
-require("dotenv").config({ path: "config.env" });
+// require("dotenv").config({ path: "config.env" });
 
 const firbaseAPI = process.env.FIREBASE_API_KEY;
 const firebaseMSID = process.env.FIREBASE_MSG_SENDER_ID;

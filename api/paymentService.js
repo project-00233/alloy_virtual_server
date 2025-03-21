@@ -1,7 +1,7 @@
 const https = require("https");
 const path = require("path");
 const fs = require("fs");
-require("dotenv").config({ path: "config.env" });
+// require("dotenv").config({ path: "config.env" });
 
 const paystackSK = process.env.PAYSTACK_SECRET_KEY;
 const paystackPK = process.env.PAYSTACK_PUBLIC_KEY;
