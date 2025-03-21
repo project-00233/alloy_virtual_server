@@ -1,6 +1,6 @@
-// require("dotenv").config({ path: "config.env" });
+require("dotenv").config({ path: "config.env" });
 const { Resend } = require("resend");
-const messaging = require("./firebaseAdmin");
+// const messaging = require("./firebaseAdmin");
 const { adminEmailList } = require("../tools/constants");
 const { log_notifyError } = require("../tools/helper");
 
@@ -27,7 +27,7 @@ const sendNotificationToSingleDevice = async (
       token,
     };
 
-    const response = await messaging.send(message);
+    // const response = await messaging.send(message);
 
     return response;
   } catch (err) {
@@ -57,7 +57,7 @@ const sendNotificationToMultiDevice = async (
           notification: { title, body },
           data: data,
         };
-        return messaging.send(message);
+        // return messaging.send(message);
       })
     );
 

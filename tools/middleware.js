@@ -1,4 +1,4 @@
-// require("dotenv").config({ path: "config.env" });
+require("dotenv").config({ path: "config.env" });
 
 const SERVER_VALIDATION_KEY = process.env.SERVER_VALIDATION_KEY;
 
