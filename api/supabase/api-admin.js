@@ -1,16 +1,14 @@
 const { supabase } = require("../supabaseClient");
 
-const verify_request_token = async (request_token, callback) => {
+const verify_request_token = async (req_token, callback) => {
   let options = supabase.from("requests");
 
-  const { data: arr, error } = await options
-    .select("id, token, token_status, order_status")
+  const { data: arr } = await options
+    .select("id, request_token, token_status, order_status")
     .eq("order_status", "processed");
 
-  console.log(error);
-
   const newArr = arr?.filter((item) =>
-    item?.token === request_token ? true : false
+    item?.request_token === req_token ? true : false
   );
 
   if (newArr?.length > 0) {
