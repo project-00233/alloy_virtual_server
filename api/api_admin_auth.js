@@ -33,15 +33,15 @@ const removeExpiredSessions = () => {
   }
 };
 
-setInterval(removeExpiredKeys, 60 * 1000); // Run cleanup every 60 seconds
-setInterval(removeExpiredSessions, 60 * 1000); // Run cleanup every 60 seconds
+setInterval(removeExpiredKeys, 5 * 60 * 1000); // Run cleanup every 5 min
+setInterval(removeExpiredSessions, 1 * 60 * 60 * 1000); // Run cleanup every 1 hour
 
 const auth_requestPermission = async (email, callback) => {
   const newKey = generateAccessKey();
   const keyObj = { id: `${Date.now()}`, key: newKey };
   accessKeys.push(keyObj);
 
-  accessExpiry[keyObj.id] = Date.now() + 50 * 1000;
+  accessExpiry[keyObj.id] = Date.now() + 5 * 60 * 1000; // 5 mins expiration
 
   await sendPermitEmail(
     { subject: "Permission Request", body: { key: newKey } },
