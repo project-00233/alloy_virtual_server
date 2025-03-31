@@ -58,7 +58,7 @@ const auth_verifyPermit = async (key_code, callback) => {
 
   const sessionToken = crypto.randomBytes(15).toString("hex");
   sessionTokens[sessionToken] = true; // Store session token as an object for O(1) lookup
-  sessionExpiry[sessionToken] = Date.now() + 16 * 60 * 60 * 1000; // 10-minute expiration
+  sessionExpiry[sessionToken] = Date.now() + 16 * 60 * 60 * 1000; // 16-hours expiration
 
   callback(null, { session_token: sessionToken });
 };

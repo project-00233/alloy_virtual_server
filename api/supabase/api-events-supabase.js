@@ -41,7 +41,7 @@ function handleUnsubscribeAll(channels) {
 
 function notifyNewRequest(payload) {
   const { new: data } = payload;
-  const isAttr = data.service_attraction_request.data ? true : false;
+  const isAttr = data.service_attraction_request?.data ? true : false;
   const res_data = isAttr
     ? data.service_attraction_request.data
     : data.service_inroom_request.data;
