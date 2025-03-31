@@ -73,20 +73,15 @@ const sendNotificationToMultiDevice = async (
   }
 };
 
-const sendAdminEmail = async (eventData) => {
-  console.log(eventData);
+const sendRequestEmail = async (eventData, email) => {
   try {
     const { subject, body } = eventData;
 
-    console.log(adminEmailList);
-
-    const sendPromises = adminEmailList?.map(
-      async (email) =>
-        await resend.emails.send({
-          from: "Womaye Requests <requests@womaye.com>",
-          to: email,
-          subject,
-          html: `<!doctype html><html>
+    await resend.emails.send({
+      from: "Womaye Requests <requests@womaye.com>",
+      to: email,
+      subject,
+      html: `<!doctype html><html>
       <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
           <style>
@@ -155,12 +150,7 @@ const sendAdminEmail = async (eventData) => {
           </div>
         </body>
       </html>`,
-        })
-    );
-
-    const response = await Promise.all(sendPromises);
-    log_notifyError(`"Email logs:", ${response}`);
-    console.log(response);
+    });
   } catch (error) {
     log_notifyError(`"Failed to send email:", ${error}`);
   }
@@ -280,7 +270,7 @@ const sendAdminSMS = async (message) => {
 module.exports = {
   sendNotificationToSingleDevice,
   sendNotificationToMultiDevice,
-  sendAdminEmail,
+  sendRequestEmail,
   sendAdminSMS,
   sendPermitEmail,
 };

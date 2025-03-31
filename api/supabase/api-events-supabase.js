@@ -1,11 +1,10 @@
-const { format } = require("date-fns");
 const {
   sendNotificationToSingleDevice,
-  sendAdminEmail,
+  sendRequestEmail,
 } = require("../notificationService");
 const { supabase } = require("../supabaseClient");
 const { fetchGSUserDeviceToken } = require("../api-deviceTokens");
-const { log_notifyError } = require("../../tools/helper");
+const { adminEmailList } = require("../../tools/constants");
 
 function subscribeToRequest(type) {
   let channel = supabase?.channel("requests");
@@ -41,23 +40,24 @@ function handleUnsubscribeAll(channels) {
 }
 
 function notifyNewRequest(payload) {
-  log_notifyError(`"Notify logs 1:", ${payload}`);
   const { new: data } = payload;
   const isAttr = data.service_attraction_request?.data ? true : false;
   const res_data = isAttr
     ? data.service_attraction_request.data
     : data.service_inroom_request.data;
 
-  log_notifyError(`"Notify logs 2:", ${isAttr}`);
-  log_notifyError(`"Notify logs 3:", ${res_data}`);
-
-  sendAdminEmail({
-    subject: "New Request",
-    body: {
-      service: res_data.serviceName,
-      date: res_data.startDate,
-    },
-  });
+  return adminEmailList.map((email) =>
+    sendRequestEmail(
+      {
+        subject: "New Request",
+        body: {
+          service: res_data.serviceName,
+          date: res_data.startDate,
+        },
+      },
+      email
+    )
+  );
 }
 
 function notifyRequestUpdate(payload) {
