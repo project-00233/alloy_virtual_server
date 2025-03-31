@@ -46,6 +46,7 @@ const {
   auth_verifyPermit,
   auth_checkSession,
 } = require("./api/api_admin_auth");
+const { verify_request_token } = require("./api/supabase/api-admin");
 
 const limiter = rateLimit({
   windowMS: 15 * 60 * 1000, // 15mins limit
@@ -423,6 +424,24 @@ app.post("/api/sb/admin/remove", validateApiKey, async (req, res) => {
     } else {
       res.status(200).json({
         message: "Request success",
+        data: result,
+      });
+    }
+  });
+});
+
+app.post("/api/sb/admin/verify_token", validateApiKey, async (req, res) => {
+  const { request_token } = req.body;
+
+  verify_request_token(request_token, (error, result) => {
+    if (error) {
+      res.status(500).json({
+        message: "Failed operation",
+        error: typeof error === "object" ? JSON.stringify(error) : error,
+      });
+    } else {
+      res.status(200).json({
+        message: "Successful operation",
         data: result,
       });
     }
