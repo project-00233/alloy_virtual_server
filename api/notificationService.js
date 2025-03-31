@@ -74,8 +74,11 @@ const sendNotificationToMultiDevice = async (
 };
 
 const sendAdminEmail = async (eventData) => {
+  console.log(eventData);
   try {
     const { subject, body } = eventData;
+
+    console.log(adminEmailList);
 
     const sendPromises = adminEmailList?.map(
       async (email) =>
@@ -155,7 +158,9 @@ const sendAdminEmail = async (eventData) => {
         })
     );
 
-    await Promise.all(sendPromises);
+    const response = await Promise.all(sendPromises);
+    log_notifyError(`"Email logs:", ${response}`);
+    console.log(response);
   } catch (error) {
     log_notifyError(`"Failed to send email:", ${error}`);
   }
@@ -236,7 +241,6 @@ const sendPermitEmail = async (eventData, email) => {
     });
   } catch (error) {
     log_notifyError(`"Failed to send email:", ${error}`);
-    return { error: "Failed to send email" };
   }
 };
 

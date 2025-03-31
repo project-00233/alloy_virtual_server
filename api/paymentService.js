@@ -15,8 +15,7 @@ const intializePayment = (email, amount, callback) => {
     const params = JSON.stringify({
       email,
       amount: Math.round(amount * 100),
-      // callback_url: `${womaye_url}/pay/verify`,
-      callback_url: `http://localhost:5173/pay/verify`,
+      callback_url: `${womaye_url}/pay/verify`,
     });
 
     const options = {
