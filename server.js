@@ -63,11 +63,6 @@ app.use(cors(corsOptions)); //Enable CORS for all routes
 app.use(express.json());
 app.use(limiter);
 
-// Serve firebase config
-// app.get("/api/firebase-config.json", validateApiKey, (req, res) => {
-//   res.sendFile(path.join(__dirname, "/api/firebase-config.json"));
-// });
-
 // ------ SUPABASE -------
 // OAUTH
 app.post("/api/sb/gsp/oauth", validateApiKey, async (req, res) => {
@@ -432,6 +427,7 @@ app.post("/api/sb/admin/remove", validateApiKey, async (req, res) => {
 
 app.post("/api/sb/admin/verify_token", validateApiKey, async (req, res) => {
   const { request_token } = req.body;
+  console.log(request_token);
 
   verify_request_token(request_token, (error, result) => {
     if (error) {
