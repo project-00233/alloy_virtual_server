@@ -24,7 +24,7 @@ const limiter = rateLimit({
 const corsOptions = {
   origin: [
     "http://localhost:5173",
-    "https://alloy-virtual-assistant.netlify.app/",
+    "https://alloy-virtual-assistant.netlify.app",
   ],
   methods: ["GET", "POST"],
 };
