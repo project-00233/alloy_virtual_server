@@ -40,23 +40,4 @@ const log_notifyError = (errorMessage) => {
   });
 };
 
-const log_paymentError = (errorMessage) => {
-  const logDir = path.join(__dirname, "..", "logs");
-
-  const logPath = path.join(logDir, "paymentErrors.log");
-  const logEntry = `[${new Date().toISOString()}] ERROR: ${errorMessage}\n`;
-
-  // Ensure the "logs" directory exists
-  if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true }); // Create "logs" directory if it doesn't exist
-  }
-
-  fs.appendFile(logPath, logEntry, (err) => {
-    if (err) console.error("Failed to write error log:", err);
-  });
-};
-
-module.exports = { log_paymentError, log_notifyError, log_sb_api_error };
-
-// const logDir = path.join(__dirname, "logs"); //located directory
-// const logDir = path.join(__dirname, ".." , "logs"); //Up one level from located directory
+module.exports = { log_notifyError, log_sb_api_error };

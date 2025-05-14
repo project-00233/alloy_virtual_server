@@ -1,12 +1,5 @@
-require("dotenv").config({ path: "config.env" });
-const { Resend } = require("resend");
-// const messaging = require("./firebaseAdmin");
-const { adminEmailList } = require("../tools/constants");
+const messaging = require("./firebaseAdmin");
 const { log_notifyError } = require("../tools/helper");
-const { format } = require("date-fns");
-
-const resendKey = process.env.RESEND_API;
-const resend = new Resend(resendKey);
 
 /**
  * Send a notification to a single device token.
@@ -19,7 +12,8 @@ const sendNotificationToSingleDevice = async (
   token,
   title,
   body,
-  data = {}
+  data = {},
+  callback
 ) => {
   try {
     const message = {
@@ -28,252 +22,248 @@ const sendNotificationToSingleDevice = async (
       token,
     };
 
-    // const response = await messaging.send(message);
+    const response = await messaging.send(message);
 
-    return response;
+    callback(null, response);
   } catch (err) {
-    console.error("Error sending notification:", err);
-    throw err;
-  }
-};
-
-/**
- * Send a notification to multiple device tokens.
- * @param {string[]} tokens - Array of device tokens.
- * @param {string} title - Notification title.
- * @param {string} body - Notification body.
- * @param {object} data - Additional custom data (optional).
- */
-const sendNotificationToMultiDevice = async (
-  tokens,
-  title,
-  body,
-  data = {}
-) => {
-  try {
-    const responses = await Promise.all(
-      tokens.map((token) => {
-        const message = {
-          token,
-          notification: { title, body },
-          data: data,
-        };
-        // return messaging.send(message);
-      })
-    );
-
-    const invalidTokens = responses
-      .map((response, i) => (response?.success ? null : tokens[i]))
-      .filter((tk) => tk !== null);
-
-    return responses;
-  } catch (err) {
-    console.error("Error sending notification:", err);
-    throw err;
-  }
-};
-
-const sendRequestEmail = async (eventData, email) => {
-  try {
-    const { subject, body } = eventData;
-
-    await resend.emails.send({
-      from: "Womaye Requests <requests@womaye.com>",
-      to: email,
-      subject,
-      html: `<!doctype html><html>
-      <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              background-color: #f4f4f9;
-              color: #333;
-              margin: 0;
-              padding: 0;
-            }
-            .container {
-              max-width: 600px;
-              margin: 20px auto;
-              background-color: #fff;
-              padding: 20px;
-              border-radius: 8px;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            }
-            .header {
-              background-color: #4CAF50;
-              color: white;
-              text-align: center;
-              padding: 10px;
-              border-radius: 8px 8px 0 0;
-            }
-            .content {
-              margin-top: 20px;
-            }
-            .content p {
-              font-size: 16px;
-              line-height: 1.6;
-            }
-            .footer {
-              text-align: center;
-              margin-top: 20px;
-              font-size: 12px;
-              color: #888;
-            }
-            .important {
-              color: #4CAF50;
-              font-weight: bold;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h2>New Service Request</h2>
-            </div>
-            <div class="content">
-              <p>Hello,</p>
-              <p>You have a new request! Please find the details below:</p>
-              <p><strong>[REQUEST FOR]</strong> <span class="important">${
-                body.service
-              }</span></p>
-              <p><strong>[WANTS IT ON]</strong> <span class="important">${format(
-                new Date(body.date),
-                "MMMM dd, yyyy"
-              )}</span></p>
-              <p>Don't miss out on this opportunity to provide your service!</p>
-            </div>
-            <div class="footer">
-              <p>Thank you for using our platform!</p>
-              <p>For any questions, please contact our support team.</p>
-            </div>
-          </div>
-        </body>
-      </html>`,
-    });
-  } catch (error) {
-    log_notifyError(`"Failed to send email:", ${error}`);
-  }
-};
-
-const sendPermitEmail = async (eventData, email) => {
-  try {
-    const { subject, body } = eventData;
-
-    // Email content
-    await resend.emails.send({
-      from: "Womaye Permit <permission@womaye.com>",
-      to: email,
-      subject,
-      html: `<!doctype html><html>
-      <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 0;
-          }
-          .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          }
-          .header {
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px 8px 0 0;
-          }
-          .content {
-            margin-top: 20px;
-          }
-          .content p {
-            font-size: 16px;
-            line-height: 1.6;
-          }
-          .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #888;
-          }
-          .important {
-            color: #4CAF50;
-            font-weight: bold;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h2>Permission Request</h2>
-          </div>
-          <div class="content">
-            <p>Hello,</p>
-            <p>You have a new request for permission! Please find the details below:</p>
-            <p><strong>[Access Key]</strong> <span class="important">${body.key}</span></p>
-           
-          </div>
-          <div class="footer">
-            <p>Thank you for using our platform!</p>
-            <p>For any questions, please contact our support team.</p>
-          </div>
-        </div>
-      </body>
-    </html>`,
-    });
-  } catch (error) {
-    log_notifyError(`"Failed to send email:", ${error}`);
-  }
-};
-
-const sendGSEmail = async (eventData) => {
-  try {
-    const { subject, body, to } = eventData;
-
-    // Configure transporter with your email credentials
-
-    // Email content
-    const mailOptions = {
-      from: authUser,
-      to,
-      subject: subject,
-      text: body,
-    };
-
-    // Send email
-    const info = await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error("Failed to send email:", error);
-  }
-};
-
-const sendAdminSMS = async (message) => {
-  try {
-    const response = await client.messages.create({
-      body: message,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: process.env.ADMIN_CONTACT,
-    });
-  } catch (error) {
-    console.error("Failed to send SMS:", error);
+    log_notifyError(`Error sending notification: ${err}`);
+    callback(err, null);
   }
 };
 
 module.exports = {
   sendNotificationToSingleDevice,
-  sendNotificationToMultiDevice,
-  sendRequestEmail,
-  sendAdminSMS,
-  sendPermitEmail,
 };
+
+// /**
+//  * Send a notification to multiple device tokens.
+//  * @param {string[]} tokens - Array of device tokens.
+//  * @param {string} title - Notification title.
+//  * @param {string} body - Notification body.
+//  * @param {object} data - Additional custom data (optional).
+//  */
+// const sendNotificationToMultiDevice = async (
+//   tokens,
+//   title,
+//   body,
+//   data = {}
+// ) => {
+//   try {
+//     const responses = await Promise.all(
+//       tokens.map((token) => {
+//         const message = {
+//           token,
+//           notification: { title, body },
+//           data: data,
+//         };
+//         // return messaging.send(message);
+//       })
+//     );
+
+//     const invalidTokens = responses
+//       .map((response, i) => (response?.success ? null : tokens[i]))
+//       .filter((tk) => tk !== null);
+
+//     return responses;
+//   } catch (err) {
+//     console.error("Error sending notification:", err);
+//     throw err;
+//   }
+// };
+
+// const sendRequestEmail = async (eventData, email) => {
+//   try {
+//     const { subject, body } = eventData;
+
+//     await resend.emails.send({
+//       from: "Womaye Requests <requests@womaye.com>",
+//       to: email,
+//       subject,
+//       html: `<!doctype html><html>
+//       <head>
+//         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+//           <style>
+//             body {
+//               font-family: Arial, sans-serif;
+//               background-color: #f4f4f9;
+//               color: #333;
+//               margin: 0;
+//               padding: 0;
+//             }
+//             .container {
+//               max-width: 600px;
+//               margin: 20px auto;
+//               background-color: #fff;
+//               padding: 20px;
+//               border-radius: 8px;
+//               box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+//             }
+//             .header {
+//               background-color: #4CAF50;
+//               color: white;
+//               text-align: center;
+//               padding: 10px;
+//               border-radius: 8px 8px 0 0;
+//             }
+//             .content {
+//               margin-top: 20px;
+//             }
+//             .content p {
+//               font-size: 16px;
+//               line-height: 1.6;
+//             }
+//             .footer {
+//               text-align: center;
+//               margin-top: 20px;
+//               font-size: 12px;
+//               color: #888;
+//             }
+//             .important {
+//               color: #4CAF50;
+//               font-weight: bold;
+//             }
+//           </style>
+//         </head>
+//         <body>
+//           <div class="container">
+//             <div class="header">
+//               <h2>New Service Request</h2>
+//             </div>
+//             <div class="content">
+//               <p>Hello,</p>
+//               <p>You have a new request! Please find the details below:</p>
+//               <p><strong>[REQUEST FOR]</strong> <span class="important">${
+//                 body.service
+//               }</span></p>
+//               <p><strong>[WANTS IT ON]</strong> <span class="important">${format(
+//                 new Date(body.date),
+//                 "MMMM dd, yyyy"
+//               )}</span></p>
+//               <p>Don't miss out on this opportunity to provide your service!</p>
+//             </div>
+//             <div class="footer">
+//               <p>Thank you for using our platform!</p>
+//               <p>For any questions, please contact our support team.</p>
+//             </div>
+//           </div>
+//         </body>
+//       </html>`,
+//     });
+//   } catch (error) {
+//     log_notifyError(`"Failed to send email:", ${error}`);
+//   }
+// };
+
+// const sendPermitEmail = async (eventData, email) => {
+//   try {
+//     const { subject, body } = eventData;
+
+//     // Email content
+//     await resend.emails.send({
+//       from: "Womaye Permit <permission@womaye.com>",
+//       to: email,
+//       subject,
+//       html: `<!doctype html><html>
+//       <head>
+//         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+//         <style>
+//           body {
+//             font-family: Arial, sans-serif;
+//             background-color: #f4f4f9;
+//             color: #333;
+//             margin: 0;
+//             padding: 0;
+//           }
+//           .container {
+//             max-width: 600px;
+//             margin: 20px auto;
+//             background-color: #fff;
+//             padding: 20px;
+//             border-radius: 8px;
+//             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+//           }
+//           .header {
+//             background-color: #4CAF50;
+//             color: white;
+//             text-align: center;
+//             padding: 10px;
+//             border-radius: 8px 8px 0 0;
+//           }
+//           .content {
+//             margin-top: 20px;
+//           }
+//           .content p {
+//             font-size: 16px;
+//             line-height: 1.6;
+//           }
+//           .footer {
+//             text-align: center;
+//             margin-top: 20px;
+//             font-size: 12px;
+//             color: #888;
+//           }
+//           .important {
+//             color: #4CAF50;
+//             font-weight: bold;
+//           }
+//         </style>
+//       </head>
+//       <body>
+//         <div class="container">
+//           <div class="header">
+//             <h2>Permission Request</h2>
+//           </div>
+//           <div class="content">
+//             <p>Hello,</p>
+//             <p>You have a new request for permission! Please find the details below:</p>
+//             <p><strong>[Access Key]</strong> <span class="important">${body.key}</span></p>
+
+//           </div>
+//           <div class="footer">
+//             <p>Thank you for using our platform!</p>
+//             <p>For any questions, please contact our support team.</p>
+//           </div>
+//         </div>
+//       </body>
+//     </html>`,
+//     });
+//   } catch (error) {
+//     log_notifyError(`"Failed to send email:", ${error}`);
+//   }
+// };
+
+// const sendGSEmail = async (eventData) => {
+//   try {
+//     const { subject, body, to } = eventData;
+
+//     // Configure transporter with your email credentials
+
+//     // Email content
+//     const mailOptions = {
+//       from: authUser,
+//       to,
+//       subject: subject,
+//       text: body,
+//     };
+
+//     // Send email
+//     const info = await transporter.sendMail(mailOptions);
+//   } catch (error) {
+//     console.error("Failed to send email:", error);
+//   }
+// };
+
+// const sendAdminSMS = async (message) => {
+//   try {
+//     const response = await client.messages.create({
+//       body: message,
+//       from: process.env.TWILIO_PHONE_NUMBER,
+//       to: process.env.ADMIN_CONTACT,
+//     });
+//   } catch (error) {
+//     console.error("Failed to send SMS:", error);
+//   }
+// };
 
 // Email Body Text Format 1
 
