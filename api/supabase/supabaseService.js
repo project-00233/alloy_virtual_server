@@ -17,6 +17,12 @@ function fetchUser(given_id, callback) {
 async function fetchSupabase(request_for, given_id, callback) {
   let options = supabase;
 
+  if (request_for === "device_tokens") {
+    options = options
+      .from("device_tokens")
+      .select("*")
+      .eq("given_id", given_id);
+  }
   if (request_for === "reminders") {
     options = options
       .from("reminders")
@@ -57,6 +63,12 @@ async function fetchSupabase(request_for, given_id, callback) {
 async function insertSupabase(request_for, client_data, callback) {
   let options = supabase;
 
+  if (request_for === "device_tokens") {
+    options = options
+      .from("device_tokens")
+      .insert([client_data])
+      .select("*");
+  }
   if (request_for === "user_meta") {
     options = options
       .from("user_meta")
@@ -100,6 +112,13 @@ async function insertSupabase(request_for, client_data, callback) {
 // Update
 async function updateSupabase(request_for, data_id, client_data, callback) {
   let options = supabase;
+
+  if (request_for === "device_tokens") {
+    options = options
+      .from("device_tokens")
+      .update(client_data)
+      .eq("id", data_id);
+  }
   if (request_for === "emergency_lines") {
     options = options
       .from("emergency_lines")

@@ -5,7 +5,9 @@ const rateLimit = require("express-rate-limit");
 
 const { validateApiKey } = require("./tools/middleware");
 const { log_notifyError, log_sb_api_error } = require("./tools/helper");
-const { sendNotificationToSingleDevice } = require("./api/notificationService");
+const {
+  fetchDeviceTokensAndSendNotification,
+} = require("./api/notificationService");
 const {
   fetchSupabase,
   fetchUser,
@@ -157,20 +159,20 @@ app.post("/api/delete/alloy", validateApiKey, async (req, res) => {
 });
 
 app.post("/api/notify", validateApiKey, async (req, res) => {
-  const { token, options } = req.body;
+  const { given_id, options } = req.body;
 
-  if (!token || !options) {
+  if (!given_id || !options) {
     log_notifyError(
       `Notification request data missing - Response for: ${JSON.stringify({
-        token,
+        given_id,
         options,
       })}`
     );
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  sendNotificationToSingleDevice(
-    token,
+  fetchDeviceTokensAndSendNotification(
+    given_id,
     options,
     (notify_error, notify_response) => {
       if (notify_error) {
@@ -188,6 +190,26 @@ app.post("/api/notify", validateApiKey, async (req, res) => {
       });
     }
   );
+
+  // sendNotificationToSingleDevice(
+  //   token,
+  //   options,
+  //   (notify_error, notify_response) => {
+  //     if (notify_error) {
+  //       return res.status(500).json({
+  //         success: false,
+  //         error: "Notification error",
+  //         data: notify_error,
+  //       });
+  //     }
+
+  //     return res.json({
+  //       success: true,
+  //       message: "Notification success",
+  //       data: notify_response,
+  //     });
+  //   }
+  // );
 });
 
 const PORT = process.env.PORT || 3000;

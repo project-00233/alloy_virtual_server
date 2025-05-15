@@ -1,393 +1,73 @@
 const messaging = require("./firebaseAdmin");
-const { log_notifyError } = require("../tools/helper");
+const { supabase } = require("./supabase/supabaseClient");
+
+/**
+ * Fetch device tokens for a given user and send a notification to each.
+ *
+ * @param {string} given_id - The ID to match device tokens against.
+ * @param {object} options - Notification options (title, body, data, etc).
+ * @param {function} callback - Function to call with error or success status.
+ */
+const fetchDeviceTokensAndSendNotification = async (
+  given_id,
+  options,
+  callback
+) => {
+  try {
+    const { data: tokens, error } = await supabase
+      .from("device_tokens")
+      .select("token")
+      .eq("given_id", given_id);
+
+    if (error) {
+      console.error("Error fetching device tokens:", error);
+      return callback?.("Error fetching device tokens", null);
+    }
+
+    if (!tokens || tokens.length === 0) {
+      console.warn("No device tokens found for given_id");
+      return callback?.("No device tokens found", null);
+    }
+
+    // Send notification to each device token
+    const results = await Promise.all(
+      tokens.map(({ token }) =>
+        sendNotificationToSingleDevice(token, options)
+          .then((res) => ({ token, success: true, res }))
+          .catch((err) => ({ token, success: false, error: err.message }))
+      )
+    );
+
+    callback?.(null, results);
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    callback?.("Unexpected error occurred", null);
+  }
+};
 
 /**
  * Send a notification to a single device token.
- * @param {string} token - Single device token.
- * @param {string} title - Notification title.
- * @param {string} body - Notification body.
- * @param {object} data - Additional custom data (optional).
+ *
+ * @param {string} token - The device token to send the notification to.
+ * @param {object} options - Notification options (title, body, data, etc).
+ * @returns {Promise} - Resolves with Firebase response or throws error.
  */
-const sendNotificationToSingleDevice = async (token, options, callback) => {
-  try {
-    const message = {
-      token,
-      ...options,
-    };
+const sendNotificationToSingleDevice = async (token, options) => {
+  const message = {
+    token,
+    ...options,
+  };
 
+  try {
     const response = await messaging.send(message);
-    console.log("notification sent");
-    callback(null, response);
+    console.log("Notification sent");
+    return response;
   } catch (err) {
-    console.log(`Error sending notification: ${err}`);
-    callback(err, null);
+    console.error(`Error sending notification:`, err);
+    throw new Error(`Failed to send notification`);
   }
 };
 
 module.exports = {
-  sendNotificationToSingleDevice,
+  fetchDeviceTokensAndSendNotification,
 };
-
-// /**
-//  * Send a notification to multiple device tokens.
-//  * @param {string[]} tokens - Array of device tokens.
-//  * @param {string} title - Notification title.
-//  * @param {string} body - Notification body.
-//  * @param {object} data - Additional custom data (optional).
-//  */
-// const sendNotificationToMultiDevice = async (
-//   tokens,
-//   title,
-//   body,
-//   data = {}
-// ) => {
-//   try {
-//     const responses = await Promise.all(
-//       tokens.map((token) => {
-//         const message = {
-//           token,
-//           notification: { title, body },
-//           data: data,
-//         };
-//         // return messaging.send(message);
-//       })
-//     );
-
-//     const invalidTokens = responses
-//       .map((response, i) => (response?.success ? null : tokens[i]))
-//       .filter((tk) => tk !== null);
-
-//     return responses;
-//   } catch (err) {
-//     console.error("Error sending notification:", err);
-//     throw err;
-//   }
-// };
-
-// const sendRequestEmail = async (eventData, email) => {
-//   try {
-//     const { subject, body } = eventData;
-
-//     await resend.emails.send({
-//       from: "Womaye Requests <requests@womaye.com>",
-//       to: email,
-//       subject,
-//       html: `<!doctype html><html>
-//       <head>
-//         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-//           <style>
-//             body {
-//               font-family: Arial, sans-serif;
-//               background-color: #f4f4f9;
-//               color: #333;
-//               margin: 0;
-//               padding: 0;
-//             }
-//             .container {
-//               max-width: 600px;
-//               margin: 20px auto;
-//               background-color: #fff;
-//               padding: 20px;
-//               border-radius: 8px;
-//               box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-//             }
-//             .header {
-//               background-color: #4CAF50;
-//               color: white;
-//               text-align: center;
-//               padding: 10px;
-//               border-radius: 8px 8px 0 0;
-//             }
-//             .content {
-//               margin-top: 20px;
-//             }
-//             .content p {
-//               font-size: 16px;
-//               line-height: 1.6;
-//             }
-//             .footer {
-//               text-align: center;
-//               margin-top: 20px;
-//               font-size: 12px;
-//               color: #888;
-//             }
-//             .important {
-//               color: #4CAF50;
-//               font-weight: bold;
-//             }
-//           </style>
-//         </head>
-//         <body>
-//           <div class="container">
-//             <div class="header">
-//               <h2>New Service Request</h2>
-//             </div>
-//             <div class="content">
-//               <p>Hello,</p>
-//               <p>You have a new request! Please find the details below:</p>
-//               <p><strong>[REQUEST FOR]</strong> <span class="important">${
-//                 body.service
-//               }</span></p>
-//               <p><strong>[WANTS IT ON]</strong> <span class="important">${format(
-//                 new Date(body.date),
-//                 "MMMM dd, yyyy"
-//               )}</span></p>
-//               <p>Don't miss out on this opportunity to provide your service!</p>
-//             </div>
-//             <div class="footer">
-//               <p>Thank you for using our platform!</p>
-//               <p>For any questions, please contact our support team.</p>
-//             </div>
-//           </div>
-//         </body>
-//       </html>`,
-//     });
-//   } catch (error) {
-//     log_notifyError(`"Failed to send email:", ${error}`);
-//   }
-// };
-
-// const sendPermitEmail = async (eventData, email) => {
-//   try {
-//     const { subject, body } = eventData;
-
-//     // Email content
-//     await resend.emails.send({
-//       from: "Womaye Permit <permission@womaye.com>",
-//       to: email,
-//       subject,
-//       html: `<!doctype html><html>
-//       <head>
-//         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-//         <style>
-//           body {
-//             font-family: Arial, sans-serif;
-//             background-color: #f4f4f9;
-//             color: #333;
-//             margin: 0;
-//             padding: 0;
-//           }
-//           .container {
-//             max-width: 600px;
-//             margin: 20px auto;
-//             background-color: #fff;
-//             padding: 20px;
-//             border-radius: 8px;
-//             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-//           }
-//           .header {
-//             background-color: #4CAF50;
-//             color: white;
-//             text-align: center;
-//             padding: 10px;
-//             border-radius: 8px 8px 0 0;
-//           }
-//           .content {
-//             margin-top: 20px;
-//           }
-//           .content p {
-//             font-size: 16px;
-//             line-height: 1.6;
-//           }
-//           .footer {
-//             text-align: center;
-//             margin-top: 20px;
-//             font-size: 12px;
-//             color: #888;
-//           }
-//           .important {
-//             color: #4CAF50;
-//             font-weight: bold;
-//           }
-//         </style>
-//       </head>
-//       <body>
-//         <div class="container">
-//           <div class="header">
-//             <h2>Permission Request</h2>
-//           </div>
-//           <div class="content">
-//             <p>Hello,</p>
-//             <p>You have a new request for permission! Please find the details below:</p>
-//             <p><strong>[Access Key]</strong> <span class="important">${body.key}</span></p>
-
-//           </div>
-//           <div class="footer">
-//             <p>Thank you for using our platform!</p>
-//             <p>For any questions, please contact our support team.</p>
-//           </div>
-//         </div>
-//       </body>
-//     </html>`,
-//     });
-//   } catch (error) {
-//     log_notifyError(`"Failed to send email:", ${error}`);
-//   }
-// };
-
-// const sendGSEmail = async (eventData) => {
-//   try {
-//     const { subject, body, to } = eventData;
-
-//     // Configure transporter with your email credentials
-
-//     // Email content
-//     const mailOptions = {
-//       from: authUser,
-//       to,
-//       subject: subject,
-//       text: body,
-//     };
-
-//     // Send email
-//     const info = await transporter.sendMail(mailOptions);
-//   } catch (error) {
-//     console.error("Failed to send email:", error);
-//   }
-// };
-
-// const sendAdminSMS = async (message) => {
-//   try {
-//     const response = await client.messages.create({
-//       body: message,
-//       from: process.env.TWILIO_PHONE_NUMBER,
-//       to: process.env.ADMIN_CONTACT,
-//     });
-//   } catch (error) {
-//     console.error("Failed to send SMS:", error);
-//   }
-// };
-
-// Email Body Text Format 1
-
-// <!doctype html>
-// <html>
-//   <head>
-//     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-//     <style>
-//       body {
-//         font-family: "Poppins", Segoe UI, Roboto, Ubuntu, sans-serif;
-//         display: flex;
-//         justify-content: center;
-//         padding: 1rem 0rem;
-//       }
-//       p {
-//         padding: 0rem;
-//         margin: 0rem;
-//       }
-//       .main {
-//         font-size: 1.3rem;
-//         background-color: #F4F3EF;
-//         color: black;
-//         width: 80%;
-//         border-radius: 7px;
-//         padding: 2rem 0rem;
-//       }
-//       .intro {
-//         height: fit-content;
-//         display: flex;
-//         flex-direction: column;
-//         justify-content: center;
-//         align-items: center;
-//       }
-//       .logoBox {
-//         width: 100%;
-//         height: 5rem;
-//         display: flex;
-//         flex-direction: column;
-//         align-items: center;
-//         justify-content: center;
-//       }
-//       .wLogo {
-//         width: 2rem;
-//         height: 2rem;
-//         margin: 0rem;
-//       }
-//       .logoText {
-//         margin: 0rem;
-//         font-size: 1.5rem;
-//         font-weight: 600;
-//         text-transform: uppercase;
-//          color: var(--coffee-dim-700);
-//          @supports (background-clip: text) {
-//            background-image: linear-gradient(90deg, #ab5121 10%, #f5b759 30%, #d77307 100%);
-//            background-clip: text;
-//            color: transparent;`
-//           }
-//       }
-//       .head1 {
-//         font-size: 1rem;
-//         font-weight: 600;
-//         padding: 0.5rem 0rem;
-//         text-transform: capitalize;
-//         height: fit-content;
-//         margin: 0rem;
-//       }
-//       .head2 {
-//         font-size: 1.3rem;
-//         font-weight: 700;
-//         text-align: center;
-//         width: 100%;
-//       }
-//       .text {
-//         font-size: 1rem;
-//         padding: 0.5rem 0rem;
-//         text-align: center;
-//         width: 100%;
-//       }
-//       .content {
-//         width: 100%;
-//         display: flex;
-//         flex-direction: column;
-//         justify-content: center;
-//         align-items: center;
-//         height:fit-content;
-//         padding: 2rem 0rem 0.5rem 0rem;
-//       }
-//       .cText {
-//         width: 70%;
-//         text-align: left;
-//         margin-top: 1rem;
-//       }
-//       .wImg {
-//         width: 70%;
-//         height: 15rem;
-//         border-radius: 7px;
-//       }
-//       .btn {
-//         font-size: 1.2rem;
-//         background-color: #0369a1;
-//         color: #fff;
-//         width: fit-content;
-//         height: fit-content;
-//         border-radius: 7px;
-//         text-decoration: none;
-//         padding: 0.5rem 1rem;
-//         text-align: center;
-//         margin-top: 1rem;
-//       }
-//       @media screen and (min-width: ${"310px"}) {
-//         body {
-//           min-width: 310px;
-//           height: fit-content;
-//         }
-//         .main {
-//           background-color: black;
-//           color: white;
-//         }
-//       }
-//       @media screen and (min-width: ${"760px"}) {
-//         body {
-//           width: 760px;
-//           height: fit-content;
-//         }
-//         .main {
-//           background-color: #F4F3EF;
-//           color: black;
-//         }
-//       }
-//     </style>
-//   </head>
-//   <body>
-//   </body>
-// </html>
