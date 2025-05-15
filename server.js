@@ -195,20 +195,23 @@ app.post("/api/schedule-notifications", validateApiKey, (req, res) => {
     }
 
     const job = schedule.scheduleJob(scheduledTime, () => {
-      let notification = { title, body, click_action: link, icon };
+      let options = {
+        notification: { title, body },
+        webpush: {
+          notification: {
+            icon,
+            click_action: link,
+          },
+        },
+      };
 
-      sendNotificationToSingleDevice(
-        token,
-        notification,
-        { link },
-        (err, response) => {
-          if (err) {
-            log_notifyError(`Failed to send "${title}":`, err);
-          } else {
-            console.log(`Notification sent: "${title}"`, response);
-          }
+      sendNotificationToSingleDevice(token, options, (err, response) => {
+        if (err) {
+          log_notifyError(`Failed to send "${title}":`, err);
+        } else {
+          console.log(`Notification sent: "${title}"`, response);
         }
-      );
+      });
     });
 
     // Optionally store job by some unique key for tracking
@@ -219,13 +222,13 @@ app.post("/api/schedule-notifications", validateApiKey, (req, res) => {
 });
 
 app.post("/api/notify", validateApiKey, async (req, res) => {
-  const { token, notification, data } = req.body;
+  const { token, options } = req.body;
 
-  if (!token || !notification) {
+  if (!token || !options) {
     log_notifyError(
       `Notification request data missing - Response for: ${JSON.stringify({
         token,
-        notification,
+        options,
       })}`
     );
     return res.status(400).json({ error: "Missing required fields" });
@@ -233,8 +236,7 @@ app.post("/api/notify", validateApiKey, async (req, res) => {
 
   sendNotificationToSingleDevice(
     token,
-    notification,
-    data,
+    options,
     (notify_error, notify_response) => {
       if (notify_error) {
         return res.status(500).json({
