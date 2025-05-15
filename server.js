@@ -158,7 +158,7 @@ app.post("/api/delete/alloy", validateApiKey, async (req, res) => {
 const scheduledJobs = {};
 
 app.post("/api/schedule-notifications", validateApiKey, (req, res) => {
-  const { token, list_of_actions } = req.body;
+  const { token, list_of_actions, link, icon } = req.body;
 
   if (!token || !Array.isArray(list_of_actions)) {
     log_notifyError(
@@ -169,7 +169,7 @@ app.post("/api/schedule-notifications", validateApiKey, (req, res) => {
   }
 
   list_of_actions.forEach((action, index) => {
-    const { exeTime, title, body, link, icon } = action;
+    const { exeTime, title, body } = action;
 
     if (!exeTime || !title || !body) return;
 
