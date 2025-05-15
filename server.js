@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const rateLimit = require("express-rate-limit");
-const schedule = require("node-schedule");
 
 const { validateApiKey } = require("./tools/middleware");
 const { log_notifyError, log_sb_api_error } = require("./tools/helper");
@@ -14,6 +13,9 @@ const {
   updateSupabase,
   deleteSupabase,
 } = require("./api/supabase/supabaseService");
+
+// Trust reverse proxy headers (needed on Render, Heroku, etc.)
+app.set("trust proxy", 1); // 1 if behind one proxy (e.g., Render), or true for all
 
 const limiter = rateLimit({
   windowMS: 15 * 60 * 1000, // 15mins limit
@@ -152,73 +154,6 @@ app.post("/api/delete/alloy", validateApiKey, async (req, res) => {
       });
     }
   });
-});
-
-// In-memory store of jobs
-const scheduledJobs = {};
-
-app.post("/api/schedule-notifications", validateApiKey, (req, res) => {
-  const { token, list_of_actions, link, icon } = req.body;
-
-  if (!token || !Array.isArray(list_of_actions)) {
-    log_notifyError(
-      `Notification request data missing - Invalid input format )}`
-    );
-
-    return res.status(400).json({ error: "Invalid input format" });
-  }
-
-  list_of_actions.forEach((action, index) => {
-    const { exeTime, title, body } = action;
-
-    if (!exeTime || !title || !body) return;
-
-    // Convert exeTime to hours and minutes
-    const [hourStr, minuteStr] = exeTime.split(":");
-    const hour = parseInt(hourStr);
-    const minute = parseInt(minuteStr);
-
-    // Schedule job for today
-    const now = new Date();
-    const scheduledTime = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      hour,
-      minute,
-      0
-    );
-
-    if (scheduledTime < now) {
-      log_notifyError(`Skipping ${title}: time already passed.`);
-      return;
-    }
-
-    const job = schedule.scheduleJob(scheduledTime, () => {
-      let options = {
-        notification: { title, body },
-        webpush: {
-          notification: {
-            icon,
-            click_action: link,
-          },
-        },
-      };
-
-      sendNotificationToSingleDevice(token, options, (err, response) => {
-        if (err) {
-          log_notifyError(`Failed to send "${title}":`, err);
-        } else {
-          console.log(`Notification sent: "${title}"`, response);
-        }
-      });
-    });
-
-    // Optionally store job by some unique key for tracking
-    scheduledJobs[`${token}-${index}`] = job;
-  });
-
-  res.json({ success: true, message: "Notifications scheduled." });
 });
 
 app.post("/api/notify", validateApiKey, async (req, res) => {
