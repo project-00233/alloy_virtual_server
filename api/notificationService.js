@@ -16,6 +16,7 @@ const sendNotificationToSingleDevice = async (token, options, callback) => {
     };
 
     const response = await messaging.send(message);
+    console.log("notification sent");
     callback(null, response);
   } catch (err) {
     console.log(`Error sending notification: ${err}`);
