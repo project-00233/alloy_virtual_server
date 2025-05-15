@@ -10,14 +10,13 @@ const { log_notifyError } = require("../tools/helper");
  */
 const sendNotificationToSingleDevice = async (
   token,
-  title,
-  body,
+  notification,
   data = {},
   callback
 ) => {
   try {
     const message = {
-      notification: { title: title, body: body },
+      notification,
       data,
       token,
     };
