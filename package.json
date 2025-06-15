@@ -1,8 +1,8 @@
 {
-  "name": "sv.api-womaye",
-  "version": "1.0.0",
+  "name": "alloy-va-server",
+  "version": "0.0.1",
   "private": true,
-  "description": "A service(sv) worker for womaye.com",
+  "description": "A service worker for alloy-virtual-assistant",
   "main": "server.js",
   "scripts": {
     "start": "npm run start:dev",
