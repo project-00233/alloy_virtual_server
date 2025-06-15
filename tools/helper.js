@@ -1,13 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 
-const decryptKey = (key) => {};
-// Api key
-// key
-// random char => 10char-15char-10char
-// key => x = 8chars
-// key => 10char <- x=2char, 15char <- x=4char, 10char <- x=2char
-
 const log_sb_api_error = (errorMessage) => {
   const logDir = path.join(__dirname, "..", "logs");
 

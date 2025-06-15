@@ -16,12 +16,11 @@ const {
   deleteSupabase,
 } = require("./api/supabase/supabaseService");
 
-// Trust reverse proxy headers (needed on Render, Heroku, etc.)
-app.set("trust proxy", 1); // 1 if behind one proxy (e.g., Render), or true for all
+app.set("trust proxy", 1);
 
 const limiter = rateLimit({
-  windowMS: 15 * 60 * 1000, // 15mins limit
-  max: 100, // Limit each IP to 100 requesters per window
+  windowMS: 15 * 60 * 1000,
+  max: 100,
   message: "Too many requests from this IP, please try again later",
 });
 
@@ -33,7 +32,7 @@ const corsOptions = {
   methods: ["GET", "POST"],
 };
 
-app.use(cors(corsOptions)); //Enable CORS for all routes
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(limiter);
 
@@ -190,26 +189,6 @@ app.post("/api/notify", validateApiKey, async (req, res) => {
       });
     }
   );
-
-  // sendNotificationToSingleDevice(
-  //   token,
-  //   options,
-  //   (notify_error, notify_response) => {
-  //     if (notify_error) {
-  //       return res.status(500).json({
-  //         success: false,
-  //         error: "Notification error",
-  //         data: notify_error,
-  //       });
-  //     }
-
-  //     return res.json({
-  //       success: true,
-  //       message: "Notification success",
-  //       data: notify_response,
-  //     });
-  //   }
-  // );
 });
 
 const PORT = process.env.PORT || 3000;
