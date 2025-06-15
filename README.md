@@ -56,7 +56,7 @@ TWILIO_AUTH_TOKEN=your_twilio_auth_token
 
 ---
 
-## ⚡ Running the Server
+## ◙ Running the Server
 
 ### Development Mode
 
@@ -80,7 +80,7 @@ npm run start:prod
 
 ---
 
-## ✅ Linting
+## ◙ Linting
 
 Check for linting issues with:
 
@@ -90,19 +90,19 @@ npx eslint .
 
 ---
 
-## 🤝 Contributing
+## ◙ Contributing
 
 Pull requests are welcome! Please fork the repository, create a feature branch, and open a pull request with clear details.
 
 ---
 
-## 📄 License
+## ◙ License
 
 This project is licensed under the **Apache License Version 2.0, January 2004
 http://www.apache.org/licenses/ **.
 
 ---
 
-## ⭐️ Show Your Support
+## ◙ Show Your Support
 
 If you find this server helpful, please ⭐️ star the repository and share it with the community!
